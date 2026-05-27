@@ -1,0 +1,63 @@
+# Image Viewer
+
+## About
+
+Display PNG/JPG/JPEG images in an interactive HTML file.
+
+## Usage
+
+Put these files at the **same** directory level as the Python file you are importing `image_viewer` into.
+
+```
+my_folder/
+    ⤷ image_dir/
+    ⤷ image_viewer.py
+    ⤷ image_viewer_template.html
+    ⤷ ...
+```
+
+Main usage:
+
+```
+import image_viewer
+
+my_image_viewer = image_viewer.ImageViewer("/image_dir/", "/output_path/")
+
+my_image_viewer.render_html()
+```
+
+_The most convenient way of viewing HTMLs is right-clicking the file in VS Code as pressing "Open in Integrated Browser"_
+
+Optionally set new paths:
+
+```
+my_image_viewer.image_dir = "./subtracted_continuous_features"
+
+my_image_viewer.output_path = "./outputs/my_output.html"
+```
+
+View image filenames:
+
+```
+print(my_image_viewer.images)
+```
+
+Remove images:
+
+```
+my_image_viewer.remove_image("image_filename")
+```
+
+Sort alphabetically:
+
+_Note: this treats '1' and '10' as before '2'. To avoid this, number your files '001', '002',... '010'_
+
+```
+my_image_viewer.sort_images(descending = False)
+```
+
+Sort according to RegEx patterns:
+
+```
+my_image_viewer.sort_images_by_regex(["pattern1", "pattern2",...], descending = False, remove_unmatched_images = False)
+```

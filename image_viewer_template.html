@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Viewer</title>
+    <style>
+      :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --bg: #f3f4f6;
+        --card-bg: #ffffff;
+        --text: #1f2937;
+        --radius: 12px;
+      }
+
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* Control Panel */
+      .controls {
+        background-color: var(--card-bg);
+        padding: 10px 20px;
+        border-radius: var(--radius);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        width: max-content;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .control-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      input[type="number"] {
+        width: 60px;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--primary);
+        text-align: center;
+      }
+
+      input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      }
+
+      button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        margin-top: auto;
+        margin-left: auto;
+      }
+
+      button:hover {
+        background-color: var(--primary-hover);
+      }
+
+      button:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .gallery-container {
+        width: 100%;
+        max-width: 1200px;
+        display: grid;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 20px;
+        scroll-behavior: smooth;
+      }
+
+      .gallery-container::-webkit-scrollbar {
+        height: 10px;
+      }
+      .gallery-container::-webkit-scrollbar-track {
+        background: #e5e7eb;
+        border-radius: 5px;
+      }
+      .gallery-container::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 5px;
+      }
+
+      .image-card {
+        position: relative;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background-color: var(--card-bg);
+        transition:
+          transform 0.2s,
+          opacity 0.3s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .image-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: scale-down;
+        display: block;
+        min-height: 0;
+        flex: 1;
+      }
+
+      .image-card.hidden {
+        display: none;
+      }
+
+      .filename-label {
+        min-height: max-content;
+        padding: 5px 5px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #374151;
+        text-align: center;
+        border-top: 1px solid #f3f4f6;
+        background-color: #ffffff;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .hide-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(239, 68, 68, 0.9);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .image-card:hover .hide-btn {
+        opacity: 1;
+      }
+
+      .hide-btn:hover {
+        background-color: #dc2626;
+        transform: scale(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <div class="control-group">
+        <label for="col-input">Columns:</label>
+        <input type="number" id="col-input" min="1" max="100" value="2" />
+      </div>
+
+      <div class="control-group">
+        <label for="row-input">Rows:</label>
+        <input type="number" id="row-input" min="1" max="100" value="2" />
+      </div>
+
+      <button id="restore-btn" disabled>
+        Restore Hidden (<span id="hidden-count">0</span>)
+      </button>
+    </div>
+
+    <div class="gallery-container" id="gallery">
+      <!-- Images injected by JS -->
+    </div>
+
+    <script>
+      const imageFiles = [IMAGE_FILES];
+
+      const gallery = document.getElementById("gallery");
+      const colInput = document.getElementById("col-input");
+      const rowInput = document.getElementById("row-input");
+      const restoreBtn = document.getElementById("restore-btn");
+      const hiddenCount = document.getElementById("hidden-count");
+
+      let hiddenImages = 0;
+
+      function initGallery() {
+        gallery.innerHTML = "";
+
+        imageFiles.forEach((filename, index) => {
+          const card = document.createElement("div");
+          card.className = "image-card";
+          card.innerHTML = `
+                    <img src="IMAGE_DIR/${filename}">
+                    <div class="filename-label" title="${filename}">${filename}</div>
+                    <div class="hide-btn" title="Hide Image">✕</div>
+                `;
+
+          const hideBtn = card.querySelector(".hide-btn");
+          hideBtn.addEventListener("click", () => {
+            card.classList.add("hidden");
+            updateHiddenCount(1);
+          });
+
+          gallery.appendChild(card);
+        });
+
+        updateGrid();
+      }
+
+      function updateGrid() {
+        const cols = parseInt(colInput.value) || 1;
+        const rows = parseInt(rowInput.value) || 1;
+        const rowHeight = Math.max(150, 600 / rows);
+        const gapWidth = 20;
+
+        gallery.style.gridAutoFlow = "column";
+        gallery.style.gridTemplateRows = `repeat(${rows}, ${rowHeight}px)`;
+        gallery.style.gridAutoColumns = `calc((100% - ${(cols - 1) * gapWidth}px) / ${cols})`;
+      }
+
+      function updateHiddenCount(change) {
+        hiddenImages += change;
+        hiddenCount.textContent = hiddenImages;
+        restoreBtn.disabled = hiddenImages <= 0;
+      }
+
+      restoreBtn.addEventListener("click", () => {
+        document.querySelectorAll(".image-card.hidden").forEach((card) => {
+          card.classList.remove("hidden");
+        });
+        hiddenImages = 0;
+        updateHiddenCount(0);
+      });
+
+      colInput.addEventListener("input", updateGrid);
+      rowInput.addEventListener("input", updateGrid);
+
+      initGallery();
+    </script>
+  </body>
+</html>
