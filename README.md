@@ -10,7 +10,7 @@ Put these files at the **same** directory level as the Python file you are impor
 
 ```
 my_folder/
-    ⤷ image_dir/
+    ⤷ my_file.py
     ⤷ image_viewer.py
     ⤷ image_viewer_template.html
     ⤷ ...
@@ -25,7 +25,7 @@ my_image_viewer = image_viewer.ImageViewer()
 
 my_image_viewer.add_images_from_directory("./my_images/")
 
-my_image_viewer.render_html("./output_dir/)
+my_image_viewer.render_html("./output_dir/")
 ```
 
 _The most convenient way of viewing HTMLs is right-clicking the file in VS Code and pressing "Open in Integrated Browser."_
