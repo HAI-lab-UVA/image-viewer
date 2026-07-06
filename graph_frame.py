@@ -2,7 +2,7 @@ import tkinter as tk
 
 class GraphFrame(tk.Frame):
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
+        super().__init__(parent)
         self.borderwidth=2
         self.relief="ridge"
         self.width=50

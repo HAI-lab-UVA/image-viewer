@@ -6,10 +6,11 @@ import menu
 
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.option_add('*tearOff', False)
         self.title("Title")
         self.geometry('{}x{}'.format(1000, 600))
+        self.config(menu=menu.Menu(self))
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -21,5 +22,3 @@ class App(tk.Tk):
         self.chat_frame.grid(column=0, row=0, sticky="ns")
         self.graph_list_frame.grid(column=1, row=0, sticky="nsew")
         self.graph_frame.grid(column=2, row=0, sticky="ns")
-
-        self.config(menu=menu.Menu)

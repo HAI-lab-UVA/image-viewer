@@ -1,3 +1,3 @@
 class Graph:
-    def __init__(self, graphs):
-        pass
+    def __init__(self, name):
+        self.name = name

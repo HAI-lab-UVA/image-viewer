@@ -1,4 +1,3 @@
 class Project:
-    def __init__(self, project_name, graphs):
-        self.project_name = project_name
+    def __init__(self, graphs = []):
         self.graphs = graphs
