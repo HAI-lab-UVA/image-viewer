@@ -17,32 +17,40 @@ class GraphListFrame(tk.Frame):
         self.pady=3
 
         self.graphsvar = tk.StringVar()
-        self.update_graphs("Temp") #TODO: load in all existing project graphs
+        self.add_to_graph_list("Temp") #TODO: load in all existing project graphs
         self.graphsvar.trace_add('write', self.build_graph_list)
 
         self.build_add_graph_button()
         self.build_graph_list()
         self.build_copy_graph_button()
+        self.build_delete_graph_button()
 
-    def update_graphs(self, new_graph_name):
+    def add_to_graph_list(self, new_graph_name):
         settings.current_project.graphs.append(graph.Graph(new_graph_name))
+        self.update_graphsvar()
+
+    def remove_from_graph_list(self, index):
+        del settings.current_project.graphs[index]
+        self.update_graphsvar()
+        
+    def update_graphsvar(self):
         self.graphsvar.set([g.name for g in settings.current_project.graphs])
 
     def build_add_graph_button(self):
         button_add_graph = tk.Button(self, text="New Graph", justify="center", command=self.add_graph, padx=10)
-        button_add_graph.grid(row=0, column=0, pady=10)
+        button_add_graph.grid(row=0, column=0, pady=5)
     
     def build_graph_list(self, *args):
         self.listbox = tk.Listbox(self, listvariable=self.graphsvar, height=20)
-        self.listbox.grid(row=1,column=0)
+        self.listbox.grid(row=1,column=0, pady=5)
 
     def build_copy_graph_button(self):
         button_add_graph = tk.Button(self, text="Copy Selected", justify="center", command=self.copy_graph, padx=10)
-        button_add_graph.grid(row=2, column=0, pady=10)
+        button_add_graph.grid(row=2, column=0, pady=5)
     
     def build_delete_graph_button(self):
         button_add_graph = tk.Button(self, text="Delete Selected", justify="center", command=self.delete_graph, padx=10)
-        button_add_graph.grid(row=3, column=0, pady=10)
+        button_add_graph.grid(row=3, column=0, pady=5)
 
     def add_graph(self):
         allow = False
@@ -58,11 +66,10 @@ class GraphListFrame(tk.Frame):
                 messagebox.showwarning("Warning", "Graph name cannot be blank")
             elif (allow == self.GraphValidation.ALREADY_EXISTS):
                 messagebox.showwarning("Warning", "Graph name already exists")
-        self.update_graphs(graph_name)
+        self.add_to_graph_list(graph_name)
         
     def copy_graph(self):
         selected_indices = self.listbox.curselection()
-        print(selected_indices)
         if (len(selected_indices) == 0): return
         for index in selected_indices:
             selected_graph_name = settings.current_project.graphs[index].name
@@ -73,10 +80,16 @@ class GraphListFrame(tk.Frame):
                 allow = self.validate_graph_name(new_graph_name)
                 if (allow == self.GraphValidation.SUCCESS):
                     break
-            self.update_graphs(new_graph_name)
+            self.add_to_graph_list(new_graph_name)
 
     def delete_graph(self):
-        pass
+        selected_indices = self.listbox.curselection()
+        if (len(selected_indices) == 0): return
+        for index in selected_indices:
+            selected_graph_name = settings.current_project.graphs[index].name
+            confirm = messagebox.askokcancel("Confirm Delete", f"Are you sure you want to delete {selected_graph_name}? You cannot undo this action.")
+            if confirm:
+                self.remove_from_graph_list(index)
 
     def validate_graph_name(self, graph_name):
         if len(graph_name) <= 0:
