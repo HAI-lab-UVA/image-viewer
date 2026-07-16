@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 import settings
 import enum
+import graph
 
 
 class LeftSection(dbc.Col):
@@ -9,6 +10,7 @@ class LeftSection(dbc.Col):
         super().__init__()
         self.id = "left-section"
         self.width = width
+        self.initial_graphs = [graph.Graph("Initial")]
         self.children = [
             dash.html.Div(
                 [
@@ -63,14 +65,15 @@ class LeftSection(dbc.Col):
         return dash.html.Div(id="error-message", style={"color": "red"})
 
     def graph_list(self):
-        # Initial dummy data
-        initial_graphs = ["APPLE", "BANANA", "CHERRY", "DATE", "ELDERBERRY"]
-
         return dash.html.Div(
             [
-                dash.dcc.Store(id="graph-store", data=initial_graphs),
+                dash.dcc.Store(
+                    id="graph-store", data=[g.toJSON() for g in self.initial_graphs]
+                ),
                 dash.dcc.Dropdown(
-                    options=[{"label": g.title(), "value": g} for g in initial_graphs],
+                    options=[
+                        {"label": g.name, "value": g.name} for g in self.initial_graphs
+                    ],
                     value=None,
                     id="graph-dropdown",
                     clearable=False,
@@ -84,7 +87,7 @@ def validate_graph_name(graph_name, current_graphs):
     if not graph_name or len(graph_name.strip()) == 0:
         return GraphValidation.BLANK
 
-    clean_name = graph_name.replace(" ", "").upper()
+    clean_name = graph_name.replace(" ", "")
     if clean_name in current_graphs:
         return GraphValidation.ALREADY_EXISTS
 
@@ -101,6 +104,8 @@ class GraphValidation(enum.Enum):
     dash.Output("graph-dropdown", "options"),
     dash.Output("error-message", "children"),
     dash.Output("graph-store", "data"),
+    dash.Output("add-graph-input", "value"),
+    dash.Output("graph-dropdown", "value"),
     dash.Input("add-graph-btn", "n_clicks"),
     dash.State("add-graph-input", "value"),
     dash.State("graph-store", "data"),
@@ -110,12 +115,26 @@ def add_graph(n_clicks, new_graph_name, current_graphs):
     match validate_graph_name(new_graph_name, current_graphs):
         case GraphValidation.BLANK:
             error_msg = "Graph name cannot be blank."
-            return dash.no_update, error_msg, dash.no_update
+            return (
+                dash.no_update,
+                error_msg,
+                dash.no_update,
+                dash.no_update,
+                dash.no_update,
+            )
         case GraphValidation.ALREADY_EXISTS:
             error_msg = f"Graph '{new_graph_name}' already exists."
-            return dash.no_update, error_msg, dash.no_update
+            return (
+                dash.no_update,
+                error_msg,
+                dash.no_update,
+                dash.no_update,
+                dash.no_update,
+            )
         case GraphValidation.SUCCESS:
-            clean_name = new_graph_name.replace(" ", "").upper()
-            current_graphs.append(clean_name)
-            new_options = [{"label": g.title(), "value": g} for g in current_graphs]
-            return new_options, "", current_graphs
+            clean_name = new_graph_name.replace(" ", "")
+            current_graphs.append(graph.Graph(new_graph_name).toJSON())
+            new_options = [
+                {"label": g["name"], "value": g["name"]} for g in current_graphs
+            ]
+            return new_options, "", current_graphs, "", clean_name
