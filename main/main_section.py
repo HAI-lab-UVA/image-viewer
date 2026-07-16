@@ -6,7 +6,7 @@ import right_section
 class MainSection(dbc.Row):
     def __init__(self):
         super().__init__()
-        self.id = "main_section"
+        self.id = "main-section"
         self.children = [
             left_section.LeftSection(3),
             center_section.CenterSection(6),
