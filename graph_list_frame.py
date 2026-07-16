@@ -41,8 +41,8 @@ class GraphListFrame(tk.Frame):
         button_add_graph.grid(row=0, column=0, pady=5)
     
     def build_graph_list(self, *args):
-        self.listbox = tk.Listbox(self, listvariable=self.graphsvar, height=20)
-        self.listbox.grid(row=1,column=0, pady=5)
+        settings.listbox = tk.Listbox(self, listvariable=self.graphsvar, height=20)
+        settings.listbox.grid(row=1,column=0, pady=5)
 
     def build_copy_graph_button(self):
         button_add_graph = tk.Button(self, text="Copy Selected", justify="center", command=self.copy_graph, padx=10)
@@ -69,7 +69,7 @@ class GraphListFrame(tk.Frame):
         self.add_to_graph_list(graph_name)
         
     def copy_graph(self):
-        selected_indices = self.listbox.curselection()
+        selected_indices = settings.listbox.curselection()
         if (len(selected_indices) == 0): return
         for index in selected_indices:
             selected_graph_name = settings.current_project.graphs[index].name
@@ -83,7 +83,7 @@ class GraphListFrame(tk.Frame):
             self.add_to_graph_list(new_graph_name)
 
     def delete_graph(self):
-        selected_indices = self.listbox.curselection()
+        selected_indices = settings.listbox.curselection()
         if (len(selected_indices) == 0): return
         for index in selected_indices:
             selected_graph_name = settings.current_project.graphs[index].name

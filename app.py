@@ -19,6 +19,6 @@ class App(tk.Tk):
         self.graph_list_frame = graph_list_frame.GraphListFrame(self)
         self.graph_frame = graph_frame.GraphFrame(self)
 
-        self.chat_frame.grid(column=0, row=0, sticky="ns")
-        self.graph_list_frame.grid(column=1, row=0, sticky="nsew")
-        self.graph_frame.grid(column=2, row=0, sticky="ns")
+        self.chat_frame.grid(column=2, row=0, sticky="ns")
+        self.graph_list_frame.grid(column=0, row=0, sticky="nsew")
+        self.graph_frame.grid(column=1, row=0, sticky="ns")

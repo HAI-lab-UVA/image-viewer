@@ -5,7 +5,7 @@ class ChatFrame(tk.Frame):
         super().__init__(parent)
         self.borderwidth=2
         self.relief="ridge"
-        self.width=200
+        self.width=50
         self.height=150
         self.padx=3
         self.pady=3
